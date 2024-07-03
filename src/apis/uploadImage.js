@@ -1,23 +1,24 @@
 const upload = require("../middleware/multer");
 const cloudinary = require("../utils/cloudinary");
 
-const uploadImage = (app) => {
-  app.post("/uploadimage", upload.single("image"), async (req, res) => {
-    cloudinary.uploader.upload(req.file.path, (error, result) => {
-      if (error) {
-        console.error(error);
-        return res.status(500).json({
-          title: "Internal Server Error",
-          message: error.message.length != 0 ? error.message : "Something went wrong",
-        });
-      }
+const uploadImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return next();
+    }
 
-      res.status(200).json({
-        title: "Image Uploaded Successfully",
-        data: result
-      });
+    const result = await cloudinary.uploader.upload(req.file.path);
+
+    req.imageUrl = result.secure_url;
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      title: "Internal Server Error",
+      message:
+        error.message.length != 0 ? error.message : "Something went wrong",
     });
-  });
+  }
 };
 
 module.exports = uploadImage;

@@ -1,13 +1,60 @@
 const pool = require("../dbConfig");
 
-const addPost = async (data) => {
-    const {text, user_id, image, hashtags} = data;
-    
-    const query = `INSERT INTO posts (user_id, text, image, hashtags) VALUES($1, $2, $3, $4) RETURNING *`;
+const startTransaction = async (client) => await client.query("BEGIN");
 
-    const result = await pool.query(query, [user_id, text, image, hashtags]);
+const commitTransaction = async (client) => await client.query("COMMIT");
 
-    return result.rows[0];
+const rollbackTransaction = async (client) => await client.query("ROLLBACK");
+
+const addPost = async (data, client) => {
+  const { text, user_id } = data;
+
+  const query = `INSERT INTO posts (user_id, text) VALUES($1, $2) RETURNING *`;
+
+  const result = await client.query(query, [user_id, text]);
+
+  return result.rows[0];
 };
 
-module.exports = { addPost };
+const addImage = async (post_id, imageUrl, client) => {
+  const query =
+    "INSERT INTO images (post_id, image) VALUES ($1, $2) RETURNING *";
+
+  const result = await client.query(query, [post_id, imageUrl]);
+
+  return result.rows[0];
+};
+
+const getAllHashtags = async (tag, client) => {
+  const query = "SELECT id FROM hashtags WHERE hashtag=$1";
+
+  const result = await client.query(query, [tag]);
+
+  return result.rows;
+};
+
+const addHashTag = async (tag, client) => {
+  const query = "INSERT INTO Hashtags (hashtag) VALUES ($1) RETURNING id";
+
+  const result = await client.query(query, [tag]);
+
+  return result.rows;
+};
+
+const addPostHashTag = async (post_id, hashtag_id, client) => {
+  const query =
+    "INSERT INTO posthashtags (post_id, hashtag_id) VALUES ($1, $2)";
+
+  const result = await client.query(query, [post_id, hashtag_id]);
+};
+
+module.exports = {
+  startTransaction,
+  commitTransaction,
+  rollbackTransaction,
+  addPost,
+  addImage,
+  getAllHashtags,
+  addHashTag,
+  addPostHashTag,
+};

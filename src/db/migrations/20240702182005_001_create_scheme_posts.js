@@ -7,8 +7,6 @@ exports.up = function (knex) {
       table.increments("id").primary().notNullable();
       table.integer("user_id").notNullable();
       table.text("text").notNullable();
-      table.text("image").nullable();
-      table.specificType("hashtags", "text[]").nullable();
       table
         .datetime("createdAt")
         .defaultTo(knex.raw("CURRENT_TIMESTAMP"))
