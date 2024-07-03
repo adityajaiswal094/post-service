@@ -1,4 +1,4 @@
-const upload = require("../middleware/multer");
+const upload = require("./multer");
 const cloudinary = require("../utils/cloudinary");
 
 const uploadImage = async (req, res, next) => {

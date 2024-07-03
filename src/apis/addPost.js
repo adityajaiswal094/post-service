@@ -3,7 +3,7 @@ const queries = require("../db/queries/queries");
 const checkUserLoggedIn = require("../middleware/checkUserLoggedIn");
 const upload = require("../middleware/multer");
 const parseFormData = require("../middleware/parseFormData");
-const uploadImage = require("./uploadImage");
+const uploadImage = require("../middleware/uploadImage");
 
 const addPost = (app) => {
   app.post(
@@ -18,7 +18,7 @@ const addPost = (app) => {
 
       let data = {};
 
-      if (text === undefined) {
+      if (text === undefined || text.length === 0) {
         return res
           .status(400)
           .json({ title: "Bad Request", message: "Text cannot be empty" });
